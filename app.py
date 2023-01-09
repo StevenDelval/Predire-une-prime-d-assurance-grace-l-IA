@@ -6,7 +6,8 @@ from functions import *
 
 pickle_in = open('modelLasso.pkl', 'rb') 
 modelLasso = pickle.load(pickle_in)
-
+pickle_in = open('modelElastic.pkl', 'rb') 
+modelElastic = pickle.load(pickle_in)
 
 
 titre = "Prédiction prix charges"
@@ -54,7 +55,8 @@ caracteristique_individue[5] = cat_bmi(bmi)
 
 if(st.button("Valider")):
     st.dataframe(pd.DataFrame(np.array(caracteristique_individue).reshape(1, -1),columns=columns_model))
-    predic = int(modelLasso.predict(pd.DataFrame(np.array(caracteristique_individue).reshape(1, -1),columns=columns_model)))
+    predic_lasso = int(modelLasso.predict(pd.DataFrame(np.array(caracteristique_individue).reshape(1, -1),columns=columns_model)))
     
-    new_title = '<p style="font-family:sans-serif; color:Green;width:100%;text-align:center; font-size: 36px;">{} $</p>'.format(predic)
+    new_title = '<p style="font-family:sans-serif; color:Green;width:100%;text-align:center; font-size: 36px;">{} $</p>'.format(predic_lasso)
     st.markdown(new_title, unsafe_allow_html=True)
+    
