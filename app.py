@@ -54,9 +54,24 @@ caracteristique_individue[5] = cat_bmi(bmi)
 
 
 if(st.button("Valider")):
-    st.dataframe(pd.DataFrame(np.array(caracteristique_individue).reshape(1, -1),columns=columns_model))
+    # st.dataframe(pd.DataFrame(np.array(caracteristique_individue).reshape(1, -1),columns=columns_model))
     predic_lasso = int(modelLasso.predict(pd.DataFrame(np.array(caracteristique_individue).reshape(1, -1),columns=columns_model)))
-    
+    predic_ElasticNet = int(modelElastic.predict(pd.DataFrame(np.array(caracteristique_individue).reshape(1, -1),columns=columns_model)))
+
+
+    st.markdown("<h1 style='text-align: center;'>Modele Lasso</h1>", unsafe_allow_html=True)
+
     new_title = '<p style="font-family:sans-serif; color:Green;width:100%;text-align:center; font-size: 36px;">{} $</p>'.format(predic_lasso)
     st.markdown(new_title, unsafe_allow_html=True)
+
+   
+    st.markdown("<h1 style='text-align: center;'>Modele ElasticNet</h1>", unsafe_allow_html=True)
+    new_title = '<p style="font-family:sans-serif; color:Green;width:100%;text-align:center; font-size: 36px;">{} $</p>'.format(predic_ElasticNet)
+    st.markdown(new_title, unsafe_allow_html=True)
+
+
+    st.markdown("<h1 style='text-align: center;'>Moyenne</h1>", unsafe_allow_html=True)
+    new_title = '<p style="font-family:sans-serif; color:Green;width:100%;text-align:center; font-size: 36px;">{} $</p>'.format((predic_ElasticNet+predic_lasso)/2)
+    st.markdown(new_title, unsafe_allow_html=True)
+
     
