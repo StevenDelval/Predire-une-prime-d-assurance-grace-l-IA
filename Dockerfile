@@ -2,16 +2,15 @@
 
 FROM python:3.9-slim
 
-EXPOSE 8501
-
-WORKDIR /
-
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    software-properties-common \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=8501"]
+COPY . /app
+
+WORKDIR /app
+
+EXPOSE 8501
+
+CMD streamlit run app.py
+
+
+
