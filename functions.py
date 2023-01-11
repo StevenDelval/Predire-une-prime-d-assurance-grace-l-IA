@@ -1,15 +1,12 @@
 import pandas as pd
-from scipy.stats import kstest,f_oneway,chi2_contingency,kruskal,pointbiserialr,stats
-
+import scipy.stats as stats
+import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.stats as stats
-from scipy.stats import shapiro 
-from scipy.stats import kstest
+
 import pandas as pd
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
-from scipy.stats import probplot
 from statsmodels.stats.multicomp import pairwise_tukeyhsd, MultiComparison
 
 def cat_bmi(bmi):
@@ -52,18 +49,16 @@ def point_biserial_correlation(data: pd.DataFrame, x_col: str, y_col: str, alpha
     # Extract the variables from the DataFrame
     x = data[x_col]
     y = data[y_col]
-    
+    x = [xi for xi in x]  
     # Convert the dichotomous variable to a list of 0s and 1s
     y = [0 if yi == y.unique()[0] else 1 for yi in y]
-    x = [xi for xi in x]  
-   
+    
     # Calculate the point biserial correlation coefficient and p-value
     rpb, p_value = stats.pointbiserialr(x, y)
     
-   # Split the continuous variable data into two groups based on the dichotomous variable
+    # Split the continuous variable data into two groups based on the dichotomous variable
     x_group1 = [x[i] for i in range(len(y)) if y[i] == 0]
     x_group2 = [x[i] for i in range(len(y)) if y[i] == 1]
-
     
     # Perform the t-test
     t, p_value_ttest = stats.ttest_ind(x_group1, x_group2)
@@ -75,7 +70,7 @@ def point_biserial_correlation(data: pd.DataFrame, x_col: str, y_col: str, alpha
     print('-' * (len(title) + 4))
     print(f'Point biserial correlation coefficient: {rpb:.3f}')
     print(f't-value: {t:.3f}')
-    print(f'p-value: {p_value}')
+    print(f'p-value: {p_value:.3f}')
     
     # Print the interpretation of the p-value
     if p_value_ttest < alpha:
@@ -84,7 +79,7 @@ def point_biserial_correlation(data: pd.DataFrame, x_col: str, y_col: str, alpha
         print('There is not a significant difference in the means of the continuous variable between the two groups defined by the dichotomous variable.')
 
 
-def get_index_to_remove_by_Cooks_Distance(X_train, y_train, preprocessor,seuil_dcook =0.005):
+def get_index_to_remove_by_Cooks_Distance(X_train, y_train, preprocessor):
     """
     This function removes observations from the training data that have high Cook's distance values.
     Cook's distance is a measure of the influence of an observation on a statistical model.
@@ -139,7 +134,7 @@ def get_index_to_remove_by_Cooks_Distance(X_train, y_train, preprocessor,seuil_d
     # Calculate the threshold for Cook's distance values
     n = X.shape[0]
     p = X.shape[1]
-    
+    seuil_dcook = 4/(n-p)
     
     # Select the indices of the observations with Cook's distance values above the threshold
     index_to_be_removed = X[X['dcooks']>seuil_dcook].index
@@ -155,3 +150,49 @@ def get_index_to_remove_by_Cooks_Distance(X_train, y_train, preprocessor,seuil_d
     plt.show()
     return index_to_be_removed
 
+def test_chi2(data:pd.DataFrame,first_cat : str,second_cat:str,values =None, aggfunc=None,graph=True,alpha : float = 0.05):
+    """
+    Cette fonction permet de realiser un test chi2
+    
+    Parameters:
+    - data: pd.DataFrame
+        Le dataframe
+    - first_cat: str
+        La premier categorie pour réaliser le test chi2
+    - second_cat: str
+        La deuxième categorie pour réaliser le test chi2
+    -values : None | str
+        La colonne des valeur souhaiter
+    -aggfunc : str
+        Fonction d'aggregation utiliser pour cree la table de contingence
+    -graph : Bool defaut True
+        affiche la heatmap de la table de contingence si la valeur est True
+    -aplha : float defaut 0.05
+        niveau de confiance
+
+    """
+    
+    
+    #Création d'une table de contingence
+    if values is None:
+        contingency_table = pd.crosstab(data[first_cat], data[second_cat])
+    else:
+        contingency_table = pd.crosstab(data[first_cat], data[second_cat],values=data[values],aggfunc=aggfunc)
+    
+    #Afichage de la heatmap si graph a pour valeur True
+    if graph :
+        # Création du heatmap
+        sns.heatmap(contingency_table, cmap='Reds')
+
+        # Affichage du heatmap
+        plt.show()
+    
+    
+
+    chi2_value, p, dof, expected = stats.chi2_contingency(contingency_table)
+    
+    seuil = stats.chi2.ppf(1 - alpha, dof)
+    if chi2_value > seuil :
+        print(f"chi2: {chi2_value:.3f}, p-value: {p:.3f}, seuil:{seuil} \n","on rejette l'hypothèse nulle (c'est à dire qu'il y a une différence significative entre les valeurs observées et attendues)")
+    else:
+        print(f"chi2: {chi2_value:.3f}, p-value: {p:.3f}, seuil:{seuil} \n","on ne rejette pas l'hypothèse nulle (c'est à dire qu'il y a pas une différence significative entre les valeurs observées et attendues)")
