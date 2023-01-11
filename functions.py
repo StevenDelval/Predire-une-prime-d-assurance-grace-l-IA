@@ -161,13 +161,13 @@ def test_chi2(data:pd.DataFrame,first_cat : str,second_cat:str,values =None, agg
         La premier categorie pour réaliser le test chi2
     - second_cat: str
         La deuxième categorie pour réaliser le test chi2
-    -values : None | str
+    - values: None | str
         La colonne des valeur souhaiter
-    -aggfunc : str
+    - aggfunc: str
         Fonction d'aggregation utiliser pour cree la table de contingence
-    -graph : Bool defaut True
+    - graph: Bool defaut True
         affiche la heatmap de la table de contingence si la valeur est True
-    -aplha : float defaut 0.05
+    - aplha: float defaut 0.05
         niveau de confiance
 
     """
